@@ -6,7 +6,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -26,6 +28,7 @@ public class DiaryService {
     @Value("${openweathermap.key}")
     private String apiKey;
 
+    @Transactional
     public void createDiary(LocalDate date, String text){
         //open weather map에서 데이터 가져오기
         String weatherData = getWeatherString();
@@ -43,6 +46,36 @@ public class DiaryService {
 
         diaryRepository.save(nowDiary);
     }
+
+
+
+    @Transactional
+    public List<Diary> readDiary(LocalDate date) {
+        return diaryRepository.findAllByDate(date);
+    }
+
+
+
+    @Transactional
+    public List<Diary> readDiaries(LocalDate startDate, LocalDate endDate) {
+        return diaryRepository.findAllByDateBetween(startDate, endDate);
+    }
+
+
+    @Transactional
+    public void updateDiary(LocalDate date, String text) {
+        Diary nowDiary = diaryRepository.getFirstByDate(date);
+        nowDiary.setText(text);
+        diaryRepository.save(nowDiary);
+    }
+
+
+    @Transactional
+    public void deleteDiary(LocalDate date) {
+        diaryRepository.deleteAllByDate(date);
+    }
+
+
 
 
 
@@ -79,7 +112,6 @@ public class DiaryService {
             return "failed to get response";
         }
     }
-
 
 
 
