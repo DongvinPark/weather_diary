@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration>
+
+  <!-- 변수 값 설정 -->
+  <property name="LOGS_PATH" value="./logs"/>
+  <property name="LOGS_LEVEL" value="INFO"/><!-- 인포, 에러 까지만 저장한다. -->
+
+  <!-- Console Appender -->
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <!-- 출력 패턴 설정 -->
+    <layout class="ch.qos.logback.classic.PatternLayout">
+      <pattern>%d{HH:mm} %-5level %logger{36} -%msg%n</pattern>
+    </layout>
+  </appender>
+
+  <!-- File Appender -->
+  <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <!-- 파일명과 경로 설정 -->
+    <file>${LOGS_PATH}/log_file.log</file>
+    <!-- 출력 패턴 설정 -->
+    <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+      <pattern>[%d{yyyy-MM-dd HH:mm:ss}:%-3relative][%thread] %-5level %logger{35} - %msg%n</pattern>
+      <charset>UTF-8</charset>
+    </encoder>
+    <!-- Rolling 정책 -->
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <!-- .gz , .zip 등을 넣으면 자동 일자별 로그파일 압축 -->
+      <fileNamePattern>${LOGS_PATH}/%d{yyyy-MM-dd}_%i.log</fileNamePattern>
+      <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+        <!-- 파일당 최고 용량 -->
+        <maxFileSize>10MB</maxFileSize>
+      </timeBasedFileNamingAndTriggeringPolicy>
+      <!-- 로그파일 최대 보관 주기 설정. '일'단위다. 해당설정일을 초과하여 보관한 파일을 자동 삭제 됨. -->
+      <maxHistory>60</maxHistory>
+    </rollingPolicy>
+  </appender>
+
+  <!-- Error Appender -->
+  <appender name="Error" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <!-- 파일명과 경로 설정 -->
+    <file>${LOGS_PATH}/error_file.log</file>
+    <!-- 출력 패턴 설정 -->
+    <encoder>
+      <pattern>[%d{yyyy-MM-dd HH:mm:ss}:%-3relative][%thread] %-5level %logger{35} - %msg%n</pattern>
+      <charset>UTF-8</charset>
+    </encoder>
+    <!-- Rolling 정책 설정 -->
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <!-- .gz , .zip 등을 넣으면 자동 일자별 로그파일 압축 -->
+      <fileNamePattern>${LOGS_PATH}/%d{yyyy-MM-dd}_error.log</fileNamePattern>
+      <maxHistory>30</maxHistory>
+    </rollingPolicy>
+    <!-- threshold filter 를 넣어서 error 이상의 로그들만 걸러지게 해준다. -->
+    <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+      <level>ERROR</level>
+    </filter>
+  </appender>
+
+
+  <root level="${LOGS_LEVEL}">
+    <appender-ref ref="STDOUT"/>
+    <appender-ref ref="FILE"/>
+    <appender-ref ref="Error"/>
+  </root>
+</configuration>
